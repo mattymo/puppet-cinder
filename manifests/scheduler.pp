@@ -1,8 +1,8 @@
 #
 class cinder::scheduler (
   $scheduler_driver = false,
-  $package_ensure   = 'present',
-  $enabled          = true
+  $package_ensure = 'present',
+  $enabled        = true
 ) {
 
   include cinder::params

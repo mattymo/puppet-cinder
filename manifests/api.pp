@@ -122,7 +122,8 @@ class cinder::api (
   }
 
   cinder_config {
-    'DEFAULT/osapi_volume_listen': value => $bind_host
+    'DEFAULT/osapi_volume_listen': value => $bind_host;
+    'DEFAULT/bind_host': value => $bind_host;
   }
 
   if $keystone_auth_uri {
@@ -147,13 +148,6 @@ class cinder::api (
       'filter:authtoken/admin_password':    value => $keystone_password, secret => true;
     }
 
-  if ($ratelimits != undef) {
-    cinder_api_paste_ini {
-      'filter:ratelimit/paste.filter_factory': value => $ratelimits_factory;
-      'filter:ratelimit/limits':               value => $ratelimits;
-    }
-  }
-
     if $keystone_auth_admin_prefix {
       validate_re($keystone_auth_admin_prefix, '^(/.+[^/])?$')
       cinder_api_paste_ini {
@@ -165,4 +159,11 @@ class cinder::api (
       }
     }
   }
+  if ($ratelimits != undef) {##
+    class{'::cinder::limits':
+      limits  => $ratelimits,
+      factory => $ratelimits_factory
+    }
+  }
+
 }

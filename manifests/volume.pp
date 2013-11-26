@@ -10,7 +10,7 @@ class cinder::volume (
   Cinder_api_paste_ini<||> ~> Service['cinder-volume']
   Exec<| title == 'cinder-manage db_sync' |> ~> Service['cinder-volume']
 
-  if $::cinder::params::volume_package {
+  if ($::cinder::params::volume_package) {
     Package['cinder-volume'] -> Cinder_config<||>
     Package['cinder-volume'] -> Cinder_api_paste_ini<||>
     Package['cinder']        -> Package['cinder-volume']
@@ -20,7 +20,6 @@ class cinder::volume (
       name   => $::cinder::params::volume_package,
     }
   }
-
   if $enabled {
     $ensure = 'running'
   } else {

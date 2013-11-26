@@ -7,7 +7,8 @@
 #
 # [*notification_driver*]
 #   (option) Driver or drivers to handle sending notifications.
-#    Notice: rabbit_notifier has been deprecated in Grizzly, use rpc_notifier instead.
+#    Notice: rabbit_notifier has been deprecated in Grizzly, use rpc_notifier
+#    instead.
 # [*control_exchange*]
 #   (option) AMQP exchange to connect to if using RabbitMQ or Qpid.
 #

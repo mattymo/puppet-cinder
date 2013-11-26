@@ -2,7 +2,8 @@
 class cinder::volume::iscsi (
   $iscsi_ip_address,
   $volume_group      = 'cinder-volumes',
-  $iscsi_helper      = 'tgtadm'
+  $iscsi_helper      = 'tgtadm',
+  $physical_volume   = undef,
 ) {
 
   include cinder::params
@@ -16,10 +17,9 @@ class cinder::volume::iscsi (
   case $iscsi_helper {
     'tgtadm': {
       package { 'tgt':
-        ensure => present,
-        name   => $::cinder::params::tgt_package_name,
+        ensure  => present,
+        name    => $::cinder::params::tgt_package_name,
       }
-
       if($::osfamily == 'RedHat') {
         file_line { 'cinder include':
           path    => '/etc/tgt/targets.conf',
@@ -37,10 +37,34 @@ class cinder::volume::iscsi (
         require => Class['cinder::volume'],
       }
     }
-
+    'ietadm': {
+        package { ['iscsitarget', 'iscsitarget-dkms']:
+          ensure => present,
+        }
+        exec { 'enable_iscsitarget':
+          command => "/bin/sed -i 's/false/true/g' /etc/default/iscsitarget",
+          unless  => "/bin/grep -q true /etc/default/iscsitarget",
+          require => Package['iscsitarget'],
+          notify  => Service['iscsitarget'],
+        }
+        service { 'iscsitarget':
+          ensure   => running,
+          name     => $::nova::params::iet_service_name,
+          enable   => true,
+          require  => [Class['cinder::volume'], Package['iscsitarget',
+                        'iscsitarget-dkms']],
+        }
+    }
     default: {
       fail("Unsupported iscsi helper: ${iscsi_helper}.")
     }
   }
 
+  if ($physical_volume) {
+      class { 'lvm':
+        vg     => $volume_group,
+        pv     => $physical_volume,
+        before => Service['cinder-volume'],
+      }
+  }
 }

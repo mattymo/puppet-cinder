@@ -18,3 +18,4 @@ class cinder::client(
     name   => $::cinder::params::client_package,
   }
 }
+

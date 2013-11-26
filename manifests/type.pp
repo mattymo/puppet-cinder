@@ -22,7 +22,8 @@
 #   (optional) The keystone user name. Defaults to 'admin.
 #
 # [*os_auth_url*]
-#   (optional) The keystone auth url. Defaults to 'http://127.0.0.1:5000/v2.0/'.
+#   (optional) The keystone auth url. Defaults to
+#   'http://127.0.0.1:5000/v2.0/'.
 #
 # Author: Andrew Woodward <awoodward@mirantis.com>
 
