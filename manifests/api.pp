@@ -148,9 +148,9 @@ class cinder::api (
     }
 
   if ($ratelimits != undef) {
-    cinder_api_paste_ini {
-      'filter:ratelimit/paste.filter_factory': value => $ratelimits_factory;
-      'filter:ratelimit/limits':               value => $ratelimits;
+    class{'::cinder::limits':
+      ratelimits         => $ratelimits,
+      ratelimits_factory => $ratelimits_factory
     }
   }
 
