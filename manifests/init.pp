@@ -12,6 +12,10 @@
 # [log_facility]
 #   Syslog facility to receive log lines.
 #   (Optional) Defaults to LOG_USER.
+#
+# [log_level]
+#   Minimal logging threshold used if debug and verbose are false.
+#   (Optional) Defaults to 'WARNING'.
 
 class cinder (
   $sql_connection,
@@ -40,7 +44,9 @@ class cinder (
   $package_ensure              = 'present',
   $api_paste_config            = '/etc/cinder/api-paste.ini',
   $use_syslog                  = false,
+  $log_dir                     = '/var/log/cinder',
   $log_facility                = 'LOG_USER',
+  $log_level                   = 'WARNING',
   $verbose                     = false,
   $debug                       = false
 ) {
@@ -132,14 +138,11 @@ class cinder (
     'DEFAULT/rpc_backend':         value => $rpc_backend;
   }
 
-  if $use_syslog {
-    cinder_config {
-      'DEFAULT/use_syslog':           value => true;
-      'DEFAULT/syslog_log_facility':  value => $log_facility;
-    }
-  } else {
-    cinder_config {
-      'DEFAULT/use_syslog':           value => false;
-    }
+  class { 'cinder::logging':
+    use_syslog   => $use_syslog,
+    debug        => $debug,
+    verbose      => $debug,
+    log_facility => $log_facility,
+    log_dir      => $log_dir,
   }
 }
