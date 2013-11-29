@@ -6,43 +6,84 @@
 #   (Optional) Defaults to 3600.
 #
 # [use_syslog]
-#   Use syslog for logging.
+#   Use syslog for logging (or local logging if false).
 #   (Optional) Defaults to false.
 #
 # [log_facility]
 #   Syslog facility to receive log lines.
+#   Applies only when using syslog.
 #   (Optional) Defaults to LOG_USER.
-
+#
+# [log_dir]
+#   Directory for cinder to use for logs if syslog is false
+#   (Optional) Defaults to '/var/log/cinder/'.
+#
+# [debug]
+#   Use debug logging (DEBUG severity and above).
+#   You should address this variable in logging config template, if any.
+#   (Optional) Defaults to false.
+#
+# [verbose]
+#   Use verbose logging (INFO severity and above).
+#   You should address this variable in logging config template, if any.
+#   (Optional) Defaults to false.
+#
+# [log_level]
+#   Minimal logging threshold used if debug and verbose are false.
+#   Applies to syslog and local logging.
+#   You should address this variable in logging config template, if any.
+#   (Optional) Defaults to 'WARNING'.
+#
+# [logging_context_format_string]
+#   Format string to use for log messages with context, e.g.:
+#   '%(asctime)s %(levelname)s %(name)s [%(request_id)s %(user_id)s %(project_id)s] %(instance)s %(message)s'
+#   (Optional) Defaults to false.
+#
+# [logging_default_format_string]
+#   Format string to use for log messages without context, e.g.:
+#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s'
+#   (Optional) Defaults to false.
+#
+# [log_config]
+#   Custom template file name for python logging config, e.g.: logging.conf.erb
+#   To use custom logging config, just create an erb template and pass its name here
+#   (Optional) Defaults to false.
+#
 class cinder (
   $sql_connection,
-  $sql_idle_timeout            = '3600',
-  $rpc_backend                 = 'cinder.openstack.common.rpc.impl_kombu',
-  $control_exchange            = 'openstack',
-  $rabbit_host                 = '127.0.0.1',
-  $rabbit_port                 = 5672,
-  $rabbit_hosts                = false,
-  $rabbit_virtual_host         = '/',
-  $rabbit_userid               = 'guest',
-  $rabbit_password             = false,
-  $qpid_hostname               = 'localhost',
-  $qpid_port                   = '5672',
-  $qpid_username               = 'guest',
-  $qpid_password               = false,
-  $qpid_reconnect              = true,
-  $qpid_reconnect_timeout      = 0,
-  $qpid_reconnect_limit        = 0,
-  $qpid_reconnect_interval_min = 0,
-  $qpid_reconnect_interval_max = 0,
-  $qpid_reconnect_interval     = 0,
-  $qpid_heartbeat              = 60,
-  $qpid_protocol               = 'tcp',
-  $qpid_tcp_nodelay            = true,
-  $package_ensure              = 'present',
-  $api_paste_config            = '/etc/cinder/api-paste.ini',
-  $use_syslog                  = false,
-  $log_facility                = 'LOG_USER',
-  $verbose                     = false,
-  $debug                       = false
+  $sql_idle_timeout                      = '3600',
+  $rpc_backend                           = 'cinder.openstack.common.rpc.impl_kombu',
+  $control_exchange                      = 'openstack',
+  $rabbit_host                           = '127.0.0.1',
+  $rabbit_port                           = 5672,
+  $rabbit_hosts                          = false,
+  $rabbit_virtual_host                   = '/',
+  $rabbit_userid                         = 'guest',
+  $rabbit_password                       = false,
+  $qpid_hostname                         = 'localhost',
+  $qpid_port                             = '5672',
+  $qpid_username                         = 'guest',
+  $qpid_password                         = false,
+  $qpid_reconnect                        = true,
+  $qpid_reconnect_timeout                = 0,
+  $qpid_reconnect_limit                  = 0,
+  $qpid_reconnect_interval_min           = 0,
+  $qpid_reconnect_interval_max           = 0,
+  $qpid_reconnect_interval               = 0,
+  $qpid_heartbeat                        = 60,
+  $qpid_protocol                         = 'tcp',
+  $qpid_tcp_nodelay                      = true,
+  $package_ensure                        = 'present',
+  $api_paste_config                      = '/etc/cinder/api-paste.ini',
+  $use_syslog                            = false,
+  $log_dir                               = '/var/log/cinder',
+  $log_facility                          = 'LOG_USER',
+  $log_level                             = 'WARNING',
+  $log_config                            = false,
+  $logging_context_format_string         = false,
+  $logging_default_format_string         = false,
+  $verbose                               = false,
+  $debug                                 = false
 ) {
 
   include cinder::params
@@ -132,14 +173,14 @@ class cinder (
     'DEFAULT/rpc_backend':         value => $rpc_backend;
   }
 
-  if $use_syslog {
-    cinder_config {
-      'DEFAULT/use_syslog':           value => true;
-      'DEFAULT/syslog_log_facility':  value => $log_facility;
-    }
-  } else {
-    cinder_config {
-      'DEFAULT/use_syslog':           value => false;
-    }
+  class { 'cinder::logging':
+    use_syslog                            => $use_syslog,
+    debug                                 => $debug,
+    verbose                               => $verbose,
+    log_facility                          => $log_facility,
+    log_dir                               => $log_dir,
+    log_config                            => $log_config,
+    logging_context_format_string         => $logging_context_format_string,
+    logging_default_format_string         => $logging_default_format_string,
   }
 }
