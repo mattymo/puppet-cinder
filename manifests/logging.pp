@@ -95,7 +95,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => '/etc/cinder/logging.conf'
+        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_syslog {
@@ -127,7 +127,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => '/etc/cinder/logging.conf'
+        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_local {
@@ -146,13 +146,13 @@ class cinder::logging (
   File[$::cinder::params::cinder_log_conf] ~> Service<| title == $::cinder::params::volume_service |>
   File[$::cinder::params::cinder_log_conf] ~> Service<| title == $::cinder::params::scheduler_service |>
 
-  if !$log_context_string_format_syslog or !log_context_string_format_local {
+  if !($log_context_string_format_syslog or $log_context_string_format_local) {
      cinder_config {
       'DEFAULT/logging_context_format_string':
         ensure => absent;
      }
   }
-  if !$log_default_string_format_syslog or !$log_default_string_format_local {
+  if !($log_default_string_format_syslog or $log_default_string_format_local) {
     cinder_config {
       'DEFAULT/logging_default_format_string':
         ensure => absent;
