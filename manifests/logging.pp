@@ -119,7 +119,7 @@ class cinder::logging (
       'DEFAULT/log_config': ensure => absent;
       'DEFAULT/use_syslog': value  => false;
       'DEFAULT/use_stderr': ensure => absent;
-      'DEFAULT/logdir':     value  => $log_dir;
+      'DEFAULT/log_dir':    value  => $log_dir;
     }
     if $log_config_local {
       file { $::cinder::params::cinder_log_conf:
