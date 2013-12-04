@@ -3,6 +3,7 @@ class cinder::params {
 
   $cinder_conf = '/etc/cinder/cinder.conf'
   $cinder_paste_api_ini = '/etc/cinder/api-paste.ini'
+  $cinder_log_conf = '/etc/cinder/cinder-logging.conf'
 
   if $::osfamily == 'Debian' {
     $package_name       = 'cinder-common'

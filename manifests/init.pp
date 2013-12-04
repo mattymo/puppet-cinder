@@ -13,10 +13,21 @@
 #   Syslog facility to receive log lines.
 #   (Optional) Defaults to LOG_USER.
 #
+# [log_dir]
+#   Directory for cinder to use for logs if syslog is false
+#   (Optional) Defaults to '/var/log/cinder/'.
+#
 # [log_level]
 #   Minimal logging threshold used if debug and verbose are false.
 #   (Optional) Defaults to 'WARNING'.
-
+#
+# [log_context_string_format]
+#   Format string to use for log messages with context
+#   (Optional) Defaults to false
+#
+# [log_default_string_format]
+#   Format string to use for log messages without context
+#   (Optional) Defaults to false
 class cinder (
   $sql_connection,
   $sql_idle_timeout            = '3600',
@@ -47,6 +58,8 @@ class cinder (
   $log_dir                     = '/var/log/cinder',
   $log_facility                = 'LOG_USER',
   $log_level                   = 'WARNING',
+  $log_context_string_format   = false,
+  $log_default_string_format   = false,
   $verbose                     = false,
   $debug                       = false
 ) {
@@ -139,10 +152,12 @@ class cinder (
   }
 
   class { 'cinder::logging':
-    use_syslog   => $use_syslog,
-    debug        => $debug,
-    verbose      => $debug,
-    log_facility => $log_facility,
-    log_dir      => $log_dir,
+    use_syslog                => $use_syslog,
+    debug                     => $debug,
+    verbose                   => $debug,
+    log_facility              => $log_facility,
+    log_dir                   => $log_dir,
+    log_context_string_format => false,
+    log_default_string_format => false,
   }
 }
