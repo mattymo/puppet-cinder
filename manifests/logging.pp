@@ -95,7 +95,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => '/etc/cinder/logging.conf'
+        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_syslog {
@@ -127,7 +127,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => '/etc/cinder/logging.conf'
+        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_local {
