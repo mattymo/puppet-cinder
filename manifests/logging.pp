@@ -80,6 +80,11 @@ class cinder::logging (
 
   include cinder::params
 
+  # Ensure deprecated options are absent
+  cinder_config {
+    'DEFAULT/log_config':        ensure => absent;
+  }
+
   if $use_syslog {
     cinder_config {
       'DEFAULT/log_file':            ensure => absent;
@@ -95,7 +100,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
+        'DEFAULT/log_config_append': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_syslog {
@@ -116,10 +121,9 @@ class cinder::logging (
   else {
     #Use local logging to $log_dir
     cinder_config {
-      'DEFAULT/log_config': ensure => absent;
-      'DEFAULT/use_syslog': value  => false;
-      'DEFAULT/use_stderr': ensure => absent;
-      'DEFAULT/log_dir':    value  => $log_dir;
+      'DEFAULT/use_syslog':        value  => false;
+      'DEFAULT/use_stderr':        ensure => absent;
+      'DEFAULT/log_dir':           value  => $log_dir;
     }
     if $log_config_local {
       file { $::cinder::params::cinder_log_conf:
@@ -127,7 +131,7 @@ class cinder::logging (
         require => File[$::cinder::params::cinder_conf],
       }
       cinder_config {
-        'DEFAULT/log_config': value => $::cinder::params::cinder_log_conf
+        'DEFAULT/log_config_append': value => $::cinder::params::cinder_log_conf
       }
     }
     if $logging_context_format_string_local {
@@ -158,7 +162,11 @@ class cinder::logging (
         ensure => absent;
      }
   }
-
+  if !($log_config_local or $log_config_syslog) {
+    cinder_config {
+      'DEFAULT/log_config_append':        ensure => absent;
+    }
+  }
   if $log_dir {
     file { $log_dir:
       ensure => directory,
