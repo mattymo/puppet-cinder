@@ -6,62 +6,100 @@
 #   (Optional) Defaults to 3600.
 #
 # [use_syslog]
-#   Use syslog for logging.
+#   Use syslog for logging (or local logging if false).
 #   (Optional) Defaults to false.
 #
 # [log_facility]
 #   Syslog facility to receive log lines.
+#   Applies only when using syslog.
 #   (Optional) Defaults to LOG_USER.
 #
 # [log_dir]
 #   Directory for cinder to use for logs if syslog is false
 #   (Optional) Defaults to '/var/log/cinder/'.
 #
+# [debug]
+#   Use debug logging (DEBUG severity and above).
+#   You should address this variable in logging config template, if any.
+#   (Optional) Defaults to false.
+#
+# [verbose]
+#   Use verbose logging (INFO severity and above).
+#   You should address this variable in logging config template, if any.
+#   (Optional) Defaults to false.
+#
 # [log_level]
 #   Minimal logging threshold used if debug and verbose are false.
+#   Applies to syslog and local logging.
+#   You should address this variable in logging config template, if any.
 #   (Optional) Defaults to 'WARNING'.
 #
-# [log_context_string_format]
-#   Format string to use for log messages with context
-#   (Optional) Defaults to false
+# [logging_context_format_string_local]
+#   Format string to use for log messages with context for local logging, e.g.:
+#   '%(asctime)s %(levelname)s %(name)s [%(request_id)s %(user_id)s %(project_id)s] %(instance)s %(message)s'
+#   (Optional) Defaults to false.  
 #
-# [log_default_string_format]
-#   Format string to use for log messages without context
-#   (Optional) Defaults to false
+# [logging_default_format_string_local]
+#   Format string to use for log messages without context for local logging, e.g.:
+#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s
+#   (Optional) Defaults to false.
+#
+# [log_config_local]
+#   Custom template file name for python logging config used for local logging, e.g.: logging_local.conf.erb
+#   To use custom logging config, just create an erb template and pass its name here
+#   (Optional) Defaults to false.
+#
+# [logging_context_format_string_syslog]
+#   Format string to use for log messages with context for syslog logging
+#   (Optional) Defaults to false.  
+#
+# [logging_default_format_string_syslog]
+#   Format string to use for log messages without context for syslog logging
+#   (Optional) Defaults to false.
+#
+# [log_config_syslog]
+#   Custom template file name for python logging config used for syslog logging
+#   To use custom logging config, just create an erb template and pass its name here
+#   (Optional) Defaults to false.
+#
 class cinder (
   $sql_connection,
-  $sql_idle_timeout            = '3600',
-  $rpc_backend                 = 'cinder.openstack.common.rpc.impl_kombu',
-  $control_exchange            = 'openstack',
-  $rabbit_host                 = '127.0.0.1',
-  $rabbit_port                 = 5672,
-  $rabbit_hosts                = false,
-  $rabbit_virtual_host         = '/',
-  $rabbit_userid               = 'guest',
-  $rabbit_password             = false,
-  $qpid_hostname               = 'localhost',
-  $qpid_port                   = '5672',
-  $qpid_username               = 'guest',
-  $qpid_password               = false,
-  $qpid_reconnect              = true,
-  $qpid_reconnect_timeout      = 0,
-  $qpid_reconnect_limit        = 0,
-  $qpid_reconnect_interval_min = 0,
-  $qpid_reconnect_interval_max = 0,
-  $qpid_reconnect_interval     = 0,
-  $qpid_heartbeat              = 60,
-  $qpid_protocol               = 'tcp',
-  $qpid_tcp_nodelay            = true,
-  $package_ensure              = 'present',
-  $api_paste_config            = '/etc/cinder/api-paste.ini',
-  $use_syslog                  = false,
-  $log_dir                     = '/var/log/cinder',
-  $log_facility                = 'LOG_USER',
-  $log_level                   = 'WARNING',
-  $log_context_string_format   = false,
-  $log_default_string_format   = false,
-  $verbose                     = false,
-  $debug                       = false
+  $sql_idle_timeout                      = '3600',
+  $rpc_backend                           = 'cinder.openstack.common.rpc.impl_kombu',
+  $control_exchange                      = 'openstack',
+  $rabbit_host                           = '127.0.0.1',
+  $rabbit_port                           = 5672,
+  $rabbit_hosts                          = false,
+  $rabbit_virtual_host                   = '/',
+  $rabbit_userid                         = 'guest',
+  $rabbit_password                       = false,
+  $qpid_hostname                         = 'localhost',
+  $qpid_port                             = '5672',
+  $qpid_username                         = 'guest',
+  $qpid_password                         = false,
+  $qpid_reconnect                        = true,
+  $qpid_reconnect_timeout                = 0,
+  $qpid_reconnect_limit                  = 0,
+  $qpid_reconnect_interval_min           = 0,
+  $qpid_reconnect_interval_max           = 0,
+  $qpid_reconnect_interval               = 0,
+  $qpid_heartbeat                        = 60,
+  $qpid_protocol                         = 'tcp',
+  $qpid_tcp_nodelay                      = true,
+  $package_ensure                        = 'present',
+  $api_paste_config                      = '/etc/cinder/api-paste.ini',
+  $use_syslog                            = false,
+  $log_dir                               = '/var/log/cinder',
+  $log_facility                          = 'LOG_USER',
+  $log_level                             = 'WARNING',
+  $log_config_local                      = false,
+  $logging_context_format_string_local   = false,
+  $logging_default_format_string_local   = false,
+  $log_config_syslog                     = false,
+  $logging_context_format_string_syslog  = false,
+  $logging_default_format_string_syslog  = false,
+  $verbose                               = false,
+  $debug                                 = false
 ) {
 
   include cinder::params
@@ -152,12 +190,16 @@ class cinder (
   }
 
   class { 'cinder::logging':
-    use_syslog                => $use_syslog,
-    debug                     => $debug,
-    verbose                   => $debug,
-    log_facility              => $log_facility,
-    log_dir                   => $log_dir,
-    log_context_string_format => false,
-    log_default_string_format => false,
+    use_syslog                            => $use_syslog,
+    debug                                 => $debug,
+    verbose                               => $debug,
+    log_facility                          => $log_facility,
+    log_dir                               => $log_dir,
+    log_config_local                      => $log_config_local,
+    logging_context_format_string_local   => $logging_context_format_string_local,
+    logging_default_format_string_local   => $logging_default_format_string_local,
+    log_config_syslog                     => $log_config_syslog,
+    logging_context_format_string_syslog  => $logging_context_format_string_syslog,
+    logging_default_format_string_syslog  => $logging_default_format_string_syslog,
   }
 }
