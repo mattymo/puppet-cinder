@@ -37,11 +37,11 @@
 # [logging_context_format_string]
 #   Format string to use for log messages with context, e.g.:
 #   '%(asctime)s %(levelname)s %(name)s [%(request_id)s %(user_id)s %(project_id)s] %(instance)s %(message)s'
-#   (Optional) Defaults to false.  
+#   (Optional) Defaults to false.
 #
 # [logging_default_format_string]
 #   Format string to use for log messages without context, e.g.:
-#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s
+#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s'
 #   (Optional) Defaults to false.
 #
 # [log_config]
@@ -176,7 +176,7 @@ class cinder (
   class { 'cinder::logging':
     use_syslog                            => $use_syslog,
     debug                                 => $debug,
-    verbose                               => $debug,
+    verbose                               => $verbose,
     log_facility                          => $log_facility,
     log_dir                               => $log_dir,
     log_config                            => $log_config,
