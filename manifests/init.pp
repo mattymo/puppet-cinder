@@ -34,31 +34,18 @@
 #   You should address this variable in logging config template, if any.
 #   (Optional) Defaults to 'WARNING'.
 #
-# [logging_context_format_string_local]
-#   Format string to use for log messages with context for local logging, e.g.:
+# [logging_context_format_string]
+#   Format string to use for log messages with context, e.g.:
 #   '%(asctime)s %(levelname)s %(name)s [%(request_id)s %(user_id)s %(project_id)s] %(instance)s %(message)s'
 #   (Optional) Defaults to false.  
 #
-# [logging_default_format_string_local]
-#   Format string to use for log messages without context for local logging, e.g.:
+# [logging_default_format_string]
+#   Format string to use for log messages without context, e.g.:
 #   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s
 #   (Optional) Defaults to false.
 #
-# [log_config_local]
-#   Custom template file name for python logging config used for local logging, e.g.: logging_local.conf.erb
-#   To use custom logging config, just create an erb template and pass its name here
-#   (Optional) Defaults to false.
-#
-# [logging_context_format_string_syslog]
-#   Format string to use for log messages with context for syslog logging
-#   (Optional) Defaults to false.  
-#
-# [logging_default_format_string_syslog]
-#   Format string to use for log messages without context for syslog logging
-#   (Optional) Defaults to false.
-#
-# [log_config_syslog]
-#   Custom template file name for python logging config used for syslog logging
+# [log_config]
+#   Custom template file name for python logging config, e.g.: logging.conf.erb
 #   To use custom logging config, just create an erb template and pass its name here
 #   (Optional) Defaults to false.
 #
@@ -92,12 +79,9 @@ class cinder (
   $log_dir                               = '/var/log/cinder',
   $log_facility                          = 'LOG_USER',
   $log_level                             = 'WARNING',
-  $log_config_local                      = false,
-  $logging_context_format_string_local   = false,
-  $logging_default_format_string_local   = false,
-  $log_config_syslog                     = false,
-  $logging_context_format_string_syslog  = false,
-  $logging_default_format_string_syslog  = false,
+  $log_config                            = false,
+  $logging_context_format_string         = false,
+  $logging_default_format_string         = false,
   $verbose                               = false,
   $debug                                 = false
 ) {
@@ -195,11 +179,8 @@ class cinder (
     verbose                               => $debug,
     log_facility                          => $log_facility,
     log_dir                               => $log_dir,
-    log_config_local                      => $log_config_local,
-    logging_context_format_string_local   => $logging_context_format_string_local,
-    logging_default_format_string_local   => $logging_default_format_string_local,
-    log_config_syslog                     => $log_config_syslog,
-    logging_context_format_string_syslog  => $logging_context_format_string_syslog,
-    logging_default_format_string_syslog  => $logging_default_format_string_syslog,
+    log_config                            => $log_config,
+    logging_context_format_string         => $logging_context_format_string,
+    logging_default_format_string         => $logging_default_format_string,
   }
 }
