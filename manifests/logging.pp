@@ -36,11 +36,11 @@
 # [logging_context_format_string]
 #   Format string to use for log messages with context, e.g.:
 #   '%(asctime)s %(levelname)s %(name)s [%(request_id)s %(user_id)s %(project_id)s] %(instance)s %(message)s'
-#   (Optional) Defaults to false.  
+#   (Optional) Defaults to false.
 #
 # [logging_default_format_string]
 #   Format string to use for log messages without context, e.g.:
-#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s
+#   '%(asctime)s %(levelname)s %(name)s [-] %(instance)s %(message)s'
 #   (Optional) Defaults to false.
 #
 # [log_config]
@@ -92,6 +92,9 @@ class cinder::logging (
     file { $::cinder::params::cinder_log_conf:
       content => template("cinder/${log_config}"),
       require => File[$::cinder::params::cinder_conf],
+      owner   => 'cinder',
+      group   => 'cinder',
+      mode    => '0600',
     }
     cinder_config {
       'DEFAULT/log_config_append': value => $::cinder::params::cinder_log_conf
